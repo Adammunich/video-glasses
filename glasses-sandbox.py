@@ -1,7 +1,7 @@
 #C:\Python27\python.exe -i "$(FULL_CURRENT_PATH)"
 #C:\windows\system32\cmd.exe /K "$(FULL_CURRENT_PATH)"
 
-import numpy as np
+import numpy
 import cv2
 import os
 
@@ -29,13 +29,15 @@ class App(object):
     def __init__(self, video_srcR, video_srcL):
 		#self.camR = video.create_capture(video_srcR)
 		self.camL = video.create_capture(video_srcL)
+		
 		#self.frameR = self.camR.read()
 		self.frameL = self.camL.read()
 
 		cv2.namedWindow('videobox')
-		#cv2.namedWindow('edge')
-		#cv2.createTrackbar('thrs1', 'edge', 2000, 5000, nothing)
-		#cv2.createTrackbar('thrs2', 'edge', 4000, 5000, nothing)
+		
+		#cv2.namedWindow('sliders')
+		#cv2.createTrackbar('thrs1', 'sliders', 2000, 5000, nothing)
+		#cv2.createTrackbar('thrs2', 'sliders', 4000, 5000, nothing)
 
 
     def run(self):  #------------------------------------------------------
@@ -46,23 +48,19 @@ class App(object):
 
 		while True:
 			#ret, self.frameR = self.camR.read()       	# Nab a frame of video stream
-			ret, self.frameL = self.camL.read()       	# Nab a frame of video stream
+			ret, self.frameL = self.camL.read()
 
 			#right_frame = self.frameR               		# Copy it to a numpy array/object thing
 			left_frame = self.frameL
 
-			right_frame = np.zeros_like(left_frame) 			# There is no left camera :-(
+			right_frame = numpy.zeros_like(left_frame) 		# There is no right camera yet :-(
 
 
-			#thrs1 = cv2.getTrackbarPos('thrs1', 'edge')
-			#thrs2 = cv2.getTrackbarPos('thrs2', 'edge')
+			#thrs1 = cv2.getTrackbarPos('thrs1', 'sliders')
+			#thrs2 = cv2.getTrackbarPos('thrs2', 'sliders')
 
 			#right_frame = cv2.Canny(right_frame, edge_thrsh_1, edge_thrsh_2, apertureSize=5)
 			#left_frame = cv2.Canny(left_frame, edge_thrsh_1, edge_thrsh_2, apertureSize=5)
-
-			focal_length = 600; # i think this is the focal length of the lens, measured in pixels
-			x_offset = 300;
-			y_offset = 230;
 
 			if(showedge):
 				right_edge = cv2.Canny(right_frame, edge_thrsh_1, edge_thrsh_2, apertureSize=5)
@@ -71,10 +69,15 @@ class App(object):
 				right_frame[right_edge != 0] = (0,255,255)
 				left_frame[left_edge != 0] = (0,255,255)
 
-			#right_frame = np.split(right_frame, 2, axis=1)[0]
-			#left_frame = np.split(left_frame, 2, axis=1)[0]
+			#right_frame = numpy.split(right_frame, 2, axis=1)[0]
+			#left_frame = numpy.split(left_frame, 2, axis=1)[0]
 
-			cameraMatrix = np.matrix([[focal_length, 0, x_offset], [0, focal_length, y_offset], [0, 0, 1]])
+
+			focal_length = 600; # This is the focal length of the lens, measured in pixels
+			x_offset = 300;
+			y_offset = 230;
+
+			cameraMatrix = numpy.matrix([[focal_length, 0, x_offset], [0, focal_length, y_offset], [0, 0, 1]])
 
 			vertical_smear_right = -0.1; # Variable names imply I haven't a clue what I'm doing yet
 			vertical_smear_left = 0.1;
@@ -88,21 +91,21 @@ class App(object):
 			smaller_fish_eye_ness_right = 8;
 			smaller_fish_eye_ness_left = 8;
 
-			distCoeffs_right = np.matrix([fish_eye_ness_right, smaller_fish_eye_ness_right, vertical_smear_right, horizontal_smear_right])
-			distCoeffs_left = np.matrix([fish_eye_ness_left, smaller_fish_eye_ness_left, vertical_smear_left, horizontal_smear_left])
+			distCoeffs_right = numpy.matrix([fish_eye_ness_right, smaller_fish_eye_ness_right, vertical_smear_right, horizontal_smear_right])
+			distCoeffs_left = numpy.matrix([fish_eye_ness_left, smaller_fish_eye_ness_left, vertical_smear_left, horizontal_smear_left])
 
 			right_frame = cv2.undistort(right_frame, cameraMatrix, distCoeffs_right)
 			left_frame = cv2.undistort(left_frame, cameraMatrix, distCoeffs_left)
 
-			right_frame = np.rot90(right_frame, 3)
-			left_frame = np.rot90(left_frame, 1)
 
-			#cv2.imshow('right_eye', right_frame)
-			video_out = np.concatenate((left_frame, right_frame),axis=1)
+			right_frame = numpy.rot90(right_frame, 3) # Fix rotation issues
+			left_frame = numpy.rot90(left_frame, 1)
+
+			video_out = numpy.concatenate((left_frame, right_frame), axis=1)
 
 			cv2.imshow('videobox', video_out)
 
-			ch = 0xFF & cv2.waitKey(5)
+			ch = 0xFF & cv2.waitKey(1)
 
 			if ch == ord('e'):
 				showedge = not showedge
