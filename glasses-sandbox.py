@@ -6,8 +6,8 @@ import cv2
 import os
 import common
 
+video_srcL = 3
 video_srcR = 1
-video_srcL = 0
 
 print " __      _       __              _____ _ "
 print " \ \    / (_)   | |             / ____| |   "
@@ -30,12 +30,17 @@ cv2.resizeWindow('videobox', window_width, window_height)
 cv2.moveWindow('videobox', 0, 0)
 
 camL = cv2.VideoCapture(int(video_srcL))
+camR = cv2.VideoCapture(int(video_srcR))
 
-print camL.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 640.0)
+
+print camL.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 600.0)
 print camL.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 800.0)
 
-print camL.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
-print camL.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
+print camR.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 600.0)
+print camR.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 800.0)
+
+#print camL.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
+#print camL.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
  
 #camR = cv2.VideoCapture(video_srcR)
 
@@ -52,11 +57,11 @@ edge_thrsh_1 = 1500
 edge_thrsh_2 = 2000
 
 while True:
-    #ret, self.right_frame = self.camR.read()     # Nab a frame of video stream
+    ret, right_frame = camR.read()     # Nab a frame of video stream
     ret, left_frame = camL.read()
     #print camL.get(cv2.cv.CV_CAP_PROP_FPS)
     
-    right_frame = np.zeros_like(left_frame)   # There is no right camera yet :-(
+    #right_frame = np.zeros_like(left_frame)   # There is no right camera yet :-(
     
     #thrs1 = cv2.getTrackbarPos('thrs1', 'sliders')
     #thrs2 = cv2.getTrackbarPos('thrs2', 'sliders')
@@ -75,8 +80,8 @@ while True:
     #left_frame = np.split(left_frame, 2, axis=1)[0]
     
     focal_length = 600; # This is the focal length of the lens, measured in pixels
-    x_offset = 300;
-    y_offset = 230;
+    x_offset = 800/2;
+    y_offset = 600/2;
     
     cameraMatrix = np.matrix([[focal_length, 0, x_offset], [0, focal_length, y_offset], [0, 0, 1]])
     
@@ -110,4 +115,4 @@ while True:
     if ch == ord('e'):
         showedge = not showedge
 
-cv2.destroyAllWindows()
+cv2.destroyAllWindows() 
